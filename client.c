@@ -7,6 +7,41 @@
 
 #define SIZE 1024
 
+void recv_confirm(int sockfd)
+{
+	int  			n;
+	char 			buffer[SIZE];
+
+	while(1)
+	{
+		n = recv(sockfd, buffer, SIZE, 0);
+
+		if(n <= 0)
+			break;
+	}
+
+	printf("%s\n", buffer);
+	bzero(buffer, SIZE);
+}
+
+void send_dir(int sockfd)
+{
+	int 			n;
+	char			*napis = "Test123/Test1/Test23/send.txt";
+	char 			buffor[SIZE];
+
+	strcpy(buffor, napis);
+
+	printf("%s\n", buffor);
+
+	if(send(sockfd, buffor, SIZE, 0) == -1)
+	{
+		perror("[-] Error in sending file.\n");
+		exit(1);
+	}
+	printf("Wyslalem sciezke\n");
+}
+
 void send_file(FILE *fp, int sockfd)
 {
 	int 			n;
@@ -16,7 +51,7 @@ void send_file(FILE *fp, int sockfd)
 	{
 		if(send(sockfd, data, sizeof(data), 0) == -1)
 		{
-			perror("[-]Error in sending file.\n");
+			perror("[-]Error in sending file.");
 			exit(1);
 		}
 
@@ -33,7 +68,7 @@ int main()
 	int			sockfd;
 	struct 			sockaddr_in server_addr;
 	FILE			*fp;
-	char			*filename = "./send.txt";
+	char			*filename = "send.txt";
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -67,6 +102,8 @@ int main()
 		exit(1);
 	}
 
+	send_dir(sockfd);
+	recv_confirm(sockfd);
 	send_file(fp, sockfd);
 
 	printf("[+]File data send successfully\n");

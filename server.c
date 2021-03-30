@@ -4,7 +4,41 @@
 
 #include <arpa/inet.h>
 
+#include "path.h"
+
 #define SIZE 1024
+
+void send_confirm(int sockfd)
+{
+	int			n;
+	char 			buffer[SIZE];
+
+	strcpy(buffer, "Yes");
+
+	if(send(sockfd, buffer, SIZE, 0) == -1)
+	{
+		perror("[-]Error in send conf\n");
+		exit(1);
+	}
+}
+
+void recv_dir(int sockfd)
+{
+	int			n;
+	char 			buffer[SIZE] = {0};
+
+	while(1)
+	{
+		printf("Przed otrzymaniem danych\n");
+		n = recv(sockfd, buffer, SIZE, 0);
+		printf("Wyslalem %d\n", n);
+		if(n <= 0)
+			break;
+	}
+
+	printf("DIR: %s\n", buffer);
+	bzero(buffer, SIZE);
+}
 
 void write_file(int sockfd)
 {
@@ -15,6 +49,8 @@ void write_file(int sockfd)
 
 	fp = fopen(filename, "w");
 
+	printf("Zaczynam dzialanie\n");
+
 	while(1)
 	{
 		n = recv(sockfd, buffer, SIZE, 0);
@@ -23,7 +59,9 @@ void write_file(int sockfd)
 			break;
 	}
 
-	fprintf(fp, "%s", buffer);
+	printf("%s\n", buffer);
+
+	//fprintf(fp, "%s", buffer);
 	bzero(buffer, SIZE);
 }
 
@@ -72,6 +110,10 @@ int main()
 
 	addr_size - sizeof(new_addr);
 	new_sock = accept(sockfd, (struct sockaddr*)&new_addr, &addr_size);
+	recv_dir(new_sock);
+	printf("Wysylam potwierdzenie\n");
+	send_confirm(new_sock);
+	printf("Otrzymuje plik\n");
 	write_file(new_sock);
 	printf("[+]Data written in the file successfully\n");
 

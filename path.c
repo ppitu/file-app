@@ -2,13 +2,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <string.h>
+#include <libgen.h>
+#include <errno.h>
 
 #include "path.h"
 
 
-void getpath(char *path)
+void create_directory(const char* path)
 {
-	
+	char *subpath, *fullpath;
+	int err;
+
+	fullpath = strdup(path);
+
+	subpath = dirname(fullpath);
+
+	if(strlen(subpath) > 1)
+	{
+		create_directory(subpath);
+	}
+
+	err = mkdir(path, 0777);
+
+ 	if(err == -1 && errno == EEXIST)
+	{
+		//Nothing happen dir exists	
+	} else if(err == -1)
+	{
+		perror("Error: ");
+	}
+
+	free(fullpath);
 }
 
 void paths(const char* path)
