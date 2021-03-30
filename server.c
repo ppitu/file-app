@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/ioctl.h>
 #include <arpa/inet.h>
 
 #include "path.h"
@@ -26,11 +27,18 @@ void recv_dir(int sockfd)
 {
 	int			n;
 	char 			buffer[SIZE] = {0};
+	int			status;
 
 	while(1)
 	{
+		//ioctl(sockfd, FIONREAD, &status);
+		//if(status > 0)
+		//{
 		printf("Przed otrzymaniem danych\n");
-		n = recv(sockfd, buffer, SIZE, 0);
+		n = recv(sockfd, buffer, SIZE, MSG_DONTWAIT);
+		//} else {
+		//	break;
+		//}
 		printf("Wyslalem %d\n", n);
 		if(n <= 0)
 			break;

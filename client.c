@@ -14,7 +14,7 @@ void recv_confirm(int sockfd)
 
 	while(1)
 	{
-		n = recv(sockfd, buffer, SIZE, 0);
+		n = recv(sockfd, buffer, SIZE, MSG_DONTWAIT);
 
 		if(n <= 0)
 			break;
@@ -28,18 +28,19 @@ void send_dir(int sockfd)
 {
 	int 			n;
 	char			*napis = "Test123/Test1/Test23/send.txt";
-	char 			buffor[SIZE];
+	char 			buffer[SIZE];
 
-	strcpy(buffor, napis);
+	strcpy(buffer, napis);
 
-	printf("%s\n", buffor);
+	printf("%s\n", buffer);
 
-	if(send(sockfd, buffor, SIZE, 0) == -1)
+	if(send(sockfd, buffer, SIZE, 0) == -1)
 	{
 		perror("[-] Error in sending file.\n");
 		exit(1);
 	}
 	printf("Wyslalem sciezke\n");
+	bzero(buffer, SIZE);
 }
 
 void send_file(FILE *fp, int sockfd)

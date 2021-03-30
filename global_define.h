@@ -1,0 +1,6 @@
+#ifndef GLOBAL_DEFINE_H
+#define GLOBAL_DEFINE_H
+
+#define	BUFFER_SIZE	1024
+
+#endif //GLOBAL_DEFINE_H
