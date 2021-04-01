@@ -2,71 +2,80 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <arpa/inet.h>
 
 #include "data_transfer.h"
 #include "global_define.h"
 
 void
-get_substring	(int 		start, 
-		int 		end, 
-		const char 	*str, 
-		char 		*result_str)
+recv_file	(int		sockfd,
+		FILE		*fp)
 {
-	int 		i;
-	int		j = 0;
+	int		n;
+	char		buffer[BUFFER_SIZE];
 
-	for(i = start; i < end; i++)
+	while(1)
 	{
-		result_str[j] = str[i];
-		j++;
-	}	
+		n = recv(sockfd, buffer, BUFFER_SIZE, 0);
+		printf("[Recv - %d]%s", n, buffer);
+		
+		fprintf(fp, "%s", buffer);
+		bzero(buffer, BUFFER_SIZE);
+
+		if(n <= 0)
+			break;
+
+	}
 }
 
 void
-divide_string	(char		*str,
-		char		**result_array,
-		int		*array_size)
+send_file	(int		sockfd,
+		FILE		*fp)
 {
-	int		str_size;
-	int		i;
-	int		size_of_last_portion;
+	int		n;
+	char		buffer[BUFFER_SIZE] = {0};
 
-	str_size = strlen(str);
-
-	if((str_size % BUFFER_SIZE) == 0)
+	while(fgets(buffer, BUFFER_SIZE, fp) != NULL)
 	{
-		*array_size = str_size / BUFFER_SIZE;
-	} else 
-	{
-		*array_size = str_size / BUFFER_SIZE + 1;
-	}
-
-	result_array = malloc(*array_size * sizeof(char *));
-
-	size_of_last_portion = str_size % BUFFER_SIZE;
-
-	for(i = 0; i < *array_size; i++)
-	{
-		*(result_array + i) = malloc(BUFFER_SIZE * sizeof(char));
-		
-		if((*array_size - 1) == i)
+		if(send(sockfd, buffer, sizeof(buffer), 0) == -1)
 		{
-						
+			perror("[-]Error in sending file.\n");
+			exit(1);
 		}
+
+		printf("[Sending]%s", buffer);
+		bzero(buffer, BUFFER_SIZE);
 	}
 }
-
 
 void
 send_data	(int		sockfd,
 		const char	*data)
 {
-	
+	char		buffer[BUFFER_SIZE] = {0};
+
+	strcpy(buffer, data);
+
+	if(send(sockfd, buffer, BUFFER_SIZE, 0) == -1)
+	{
+		perror("[-]Error in sending\n");
+		exit(1);
+	}
 }
 
 void
 recv_data	(int		sockfd,
-		char		*data)
+		char		**result_data)
 {
-	
+	char		buffer[BUFFER_SIZE] = {0};
+
+	*result_data = malloc(BUFFER_SIZE * sizeof(char));
+
+	if(recv(sockfd, buffer, BUFFER_SIZE, MSG_DONTWAIT) == -1)
+	{
+		perror("[-]Error in recv data\n");
+		exit(1);
+	}
+
+	strcpy(*result_data, buffer);
 }

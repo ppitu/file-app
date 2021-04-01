@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #include "path.h"
+#include "data_transfer.h"
 
 
 void create_directory(const char* path)
@@ -28,7 +29,7 @@ void create_directory(const char* path)
 
 	err = mkdir(path, 0777);
 
- 	if(err == -1 && errno == EEXIST)
+	if(err == -1 && errno == EEXIST)
 	{
 		//Nothing happen dir exists	
 	} else if(err == -1)
@@ -49,20 +50,22 @@ void paths(const char* path)
 
 	while((dp = readdir(dir)))
 	{
-		if(strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
+		if(strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0 || strcmp(dp->d_name, ".git") == 0)
 			continue;
 
 		fullpath = pathcat(path, dp->d_name);
 		printf("%s\n", fullpath);
+		//send_file(
 
 		dir2 = opendir(fullpath);
-
+	
 		if(dir2 != NULL && strcmp(fullpath, "/.") != 0 && strcmp(fullpath, "/..") != 0)
 		{
 			paths(fullpath);
 		}
-			
+		
 
+		closedir(dir2);
 		free(fullpath);
 	}
 
@@ -76,11 +79,25 @@ char *pathcat(const char *str1, char *str2)
 	size_t			strlen1 = strlen(str1);
 	size_t			strlen2 = strlen(str2);
 	int			i, j;
-	res = malloc((strlen1+strlen2 +2)*sizeof(*res));
-	strcpy(res, str1);
-	strcat(res, "/");
 
-	strlen1++;
+	if(str1[strlen1 + 1] == '/')
+	{
+		res = malloc((strlen1+strlen2 +1)*sizeof(*res));
+
+	} else
+	{
+		res = malloc((strlen1+strlen2 +2)*sizeof(*res));
+
+	}
+	
+	strcpy(res, str1);
+
+	if(res[strlen1 -1] != '/')
+	{
+		strcat(res, "/");
+
+		strlen1++;
+	}
 
 	for(i = strlen1, j = 0; ((i < (strlen1+strlen2)) && (j < strlen2)); i++, j++)
 	{

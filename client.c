@@ -5,60 +5,10 @@
 
 #include <arpa/inet.h>
 
+#include "data_transfer.h"
+
 #define SIZE 1024
 
-void recv_confirm(int sockfd)
-{
-	int  			n;
-	char 			buffer[SIZE];
-
-	while(1)
-	{
-		n = recv(sockfd, buffer, SIZE, MSG_DONTWAIT);
-
-		if(n <= 0)
-			break;
-	}
-
-	printf("%s\n", buffer);
-	bzero(buffer, SIZE);
-}
-
-void send_dir(int sockfd)
-{
-	int 			n;
-	char			*napis = "Test123/Test1/Test23/send.txt";
-	char 			buffer[SIZE];
-
-	strcpy(buffer, napis);
-
-	printf("%s\n", buffer);
-
-	if(send(sockfd, buffer, SIZE, 0) == -1)
-	{
-		perror("[-] Error in sending file.\n");
-		exit(1);
-	}
-	printf("Wyslalem sciezke\n");
-	bzero(buffer, SIZE);
-}
-
-void send_file(FILE *fp, int sockfd)
-{
-	int 			n;
-	char 			data[SIZE] = {0};
-
-	while(fgets(data, SIZE, fp) != NULL)
-	{
-		if(send(sockfd, data, sizeof(data), 0) == -1)
-		{
-			perror("[-]Error in sending file.");
-			exit(1);
-		}
-
-		bzero(data, SIZE);
-	}
-}
 
 int main()
 {
@@ -103,13 +53,23 @@ int main()
 		exit(1);
 	}
 
-	send_dir(sockfd);
-	recv_confirm(sockfd);
-	send_file(fp, sockfd);
+	//send_dir(sockfd);
+	//recv_confirm(sockfd);
 
+	char *data;
+
+	send_data(sockfd, "Hello Peter\n");
+
+	recv_data(sockfd, &data);
+
+	printf("%s\n", data);
+	free(data);
+	send_file(sockfd, fp);
 	printf("[+]File data send successfully\n");
 
 	printf("[+]Closing the connection\n");
+
+	fclose(fp);
 
 	close(sockfd);
 
