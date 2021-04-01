@@ -1,8 +1,26 @@
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 
 #include "data_transfer.h"
 #include "global_define.h"
+
+void
+get_substring	(int 		start, 
+		int 		end, 
+		const char 	*str, 
+		char 		*result_str)
+{
+	int 		i;
+	int		j = 0;
+
+	for(i = start; i < end; i++)
+	{
+		result_str[j] = str[i];
+		j++;
+	}	
+}
 
 void
 divide_string	(char		*str,
@@ -33,7 +51,7 @@ divide_string	(char		*str,
 		
 		if((*array_size - 1) == i)
 		{
-			
+						
 		}
 	}
 }
