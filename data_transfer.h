@@ -17,4 +17,11 @@ void
 recv_data	(int		sockfd,
 		char		**result_data);
 
+void 
+send_int	(int		sockfd,
+		int		value_to_send);
+
+int
+recv_int	(int		sockfd);
+
 #endif //DATA_TRANSFER_H

@@ -53,15 +53,12 @@ int main()
 		exit(1);
 	}
 
-	//send_dir(sockfd);
-	//recv_confirm(sockfd);
-
 	char *data;
 
-	send_data(sockfd, "Hello Peter\n");
-
+	send_data(sockfd, "Hello Peter");
+	printf("Send data\n");
 	recv_data(sockfd, &data);
-
+	printf("Recv data\n");
 	printf("%s\n", data);
 	free(data);
 	send_file(sockfd, fp);

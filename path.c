@@ -13,10 +13,12 @@
 #include "data_transfer.h"
 
 
-void create_directory(const char* path)
+void 
+create_directory	(const char 	*path)
 {
-	char *subpath, *fullpath;
-	int err;
+	char 			*subpath; 
+	char			*fullpath;
+	int 			err;
 
 	fullpath = strdup(path);
 
@@ -40,28 +42,67 @@ void create_directory(const char* path)
 	free(fullpath);
 }
 
-void paths(const char* path)
+void
+get_paths	(const char	*path,
+		char		**result_paths,
+		int		*number_of_paths)
+{
+	*number_of_paths = 0;
+
+	result_paths = malloc(1 * sizeof(*result_paths));
+
+	paths(path, result_paths, number_of_paths);
+}
+
+void
+free_paths	(char		**result_paths,
+		int		number_of_paths)
+{
+	int 			i;
+
+	for(i = 0; i < number_of_paths; ++i)
+	{
+		printf("{-}%d\n", i);
+		free(*(result_paths + i));
+	}
+	printf("Test\n");
+	free(result_paths);
+}
+
+void 
+paths		(const char	*path,
+		char		**result_paths,
+		int		*number_of_paths)
 {
 	struct dirent		*dp;
 	char			*fullpath;
-	DIR			*dir = opendir(path);
+	DIR			*dir;
 	DIR			*dir2;
 	int 			x, ascii;
+
+	dir = opendir(path);
 
 	while((dp = readdir(dir)))
 	{
 		if(strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0 || strcmp(dp->d_name, ".git") == 0)
 			continue;
 
+		++*number_of_paths;
+
 		fullpath = pathcat(path, dp->d_name);
+
+		result_paths = (char **)realloc(result_paths, *number_of_paths * sizeof(*result_paths));
+		*(result_paths + (*number_of_paths - 1)) = malloc(strlen(fullpath) * sizeof(char));
+
+		strcat(*(result_paths + (*number_of_paths - 1)), fullpath);
 		printf("%s\n", fullpath);
-		//send_file(
+		printf("%s\n", *(result_paths + (*number_of_paths - -1)));
 
 		dir2 = opendir(fullpath);
 	
 		if(dir2 != NULL && strcmp(fullpath, "/.") != 0 && strcmp(fullpath, "/..") != 0)
 		{
-			paths(fullpath);
+			paths(fullpath, result_paths, number_of_paths);
 		}
 		
 
@@ -73,7 +114,9 @@ void paths(const char* path)
 
 }
 
-char *pathcat(const char *str1, char *str2)
+char *
+pathcat		(const char 	*str1, 
+		char 		*str2)
 {
 	char			*res;
 	size_t			strlen1 = strlen(str1);
