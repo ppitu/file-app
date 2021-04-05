@@ -4,20 +4,20 @@
 
 int main()
 {
-	char **paths;
+	paths_t paths;
 	int x;
 	
-	get_paths("./", paths, &x);
+	get_paths("./", &paths);
 
-	printf("%d\n", x);
+	printf("%d\n", paths.size);
 	printf("---------------------------\n");
-	for(int i =0 ; i < x; i++)
+	for(int i = 0; i < paths.size; i++)
 	{
-		printf("%s\n",	paths[i]);
+		printf("%s\n",	paths.paths_name[i]);
 	}
 
 	printf("+++++++++++++++++++++++++++\n");
 		
 	printf("=================================\n");
-	free_paths(paths, x);
+	free_paths(&paths);
 }

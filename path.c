@@ -44,35 +44,30 @@ create_directory	(const char 	*path)
 
 void
 get_paths	(const char	*path,
-		char		**result_paths,
-		int		*number_of_paths)
+		paths_t		*paths)
 {
-	*number_of_paths = 0;
+	paths->size = 0;
 
-	result_paths = malloc(1 * sizeof(*result_paths));
-
-	paths(path, result_paths, number_of_paths);
+	get_paths_help(path, paths);
 }
 
 void
-free_paths	(char		**result_paths,
-		int		number_of_paths)
+free_paths	(paths_t	*paths)
 {
 	int 			i;
 
-	for(i = 0; i < number_of_paths; ++i)
+	for(i = 0; i < paths->size; ++i)
 	{
 		printf("{-}%d\n", i);
-		free(*(result_paths + i));
+		free(paths->paths_name[i]);
 	}
 	printf("Test\n");
-	free(result_paths);
+	free(paths->paths_name);
 }
 
 void 
-paths		(const char	*path,
-		char		**result_paths,
-		int		*number_of_paths)
+get_paths_help	(const char	*path,
+		paths_t		*paths)
 {
 	struct dirent		*dp;
 	char			*fullpath;
@@ -87,22 +82,31 @@ paths		(const char	*path,
 		if(strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0 || strcmp(dp->d_name, ".git") == 0)
 			continue;
 
-		++*number_of_paths;
+		++paths->size;
 
 		fullpath = pathcat(path, dp->d_name);
 
-		result_paths = (char **)realloc(result_paths, *number_of_paths * sizeof(*result_paths));
-		*(result_paths + (*number_of_paths - 1)) = malloc(strlen(fullpath) * sizeof(char));
+		if(paths->size == 1)
+		{
+			paths->paths_name = (char **)malloc(1 * sizeof(char *));
+		} else
+		{
+			paths->paths_name = (char **)realloc(paths->paths_name, paths->size * sizeof(char *));
+		}
+		paths->paths_name[paths->size - 1] = (char *)malloc(strlen(fullpath) * sizeof(char));
 
-		strcat(*(result_paths + (*number_of_paths - 1)), fullpath);
+		strcat(paths->paths_name[paths->size - 1], fullpath);
+
+		printf("%ld || %ld\n", strlen(fullpath), strlen(paths->paths_name[paths->size - 1]));
+		
 		printf("%s\n", fullpath);
-		printf("%s\n", *(result_paths + (*number_of_paths - -1)));
+		printf("%s\n", paths->paths_name[paths->size - 1]);
 
 		dir2 = opendir(fullpath);
 	
 		if(dir2 != NULL && strcmp(fullpath, "/.") != 0 && strcmp(fullpath, "/..") != 0)
 		{
-			paths(fullpath, result_paths, number_of_paths);
+			get_paths_help(fullpath, paths);
 		}
 		
 
