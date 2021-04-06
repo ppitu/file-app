@@ -12,6 +12,13 @@
 #include "path.h"
 #include "data_transfer.h"
 
+char *
+pathcat			(const char	*str1,
+			char		*str2);
+
+void
+get_paths_help		(paths_t	*paths,
+			const char	*path);
 
 void 
 create_directory	(const char 	*path)
@@ -43,12 +50,12 @@ create_directory	(const char 	*path)
 }
 
 void
-get_paths	(const char	*path,
-		paths_t		*paths)
+get_paths	(paths_t	*paths,
+		const char	*path)
 {
 	paths->size = 0;
 
-	get_paths_help(path, paths);
+	get_paths_help(paths, path);
 }
 
 void
@@ -58,16 +65,15 @@ free_paths	(paths_t	*paths)
 
 	for(i = 0; i < paths->size; ++i)
 	{
-		printf("{-}%d\n", i);
 		free(paths->paths_name[i]);
 	}
-	printf("Test\n");
+
 	free(paths->paths_name);
 }
 
 void 
-get_paths_help	(const char	*path,
-		paths_t		*paths)
+get_paths_help	(paths_t	*paths,
+		const char *	path)
 {
 	struct dirent		*dp;
 	char			*fullpath;
@@ -95,18 +101,13 @@ get_paths_help	(const char	*path,
 		}
 		paths->paths_name[paths->size - 1] = (char *)malloc(strlen(fullpath) * sizeof(char));
 
-		strcat(paths->paths_name[paths->size - 1], fullpath);
-
-		printf("%ld || %ld\n", strlen(fullpath), strlen(paths->paths_name[paths->size - 1]));
-		
-		printf("%s\n", fullpath);
-		printf("%s\n", paths->paths_name[paths->size - 1]);
+		strcpy(paths->paths_name[paths->size - 1], fullpath);
 
 		dir2 = opendir(fullpath);
 	
 		if(dir2 != NULL && strcmp(fullpath, "/.") != 0 && strcmp(fullpath, "/..") != 0)
 		{
-			get_paths_help(fullpath, paths);
+			get_paths_help(paths, fullpath);
 		}
 		
 
